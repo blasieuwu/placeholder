@@ -32,6 +32,8 @@ jobs:
             --arg msg "$CLEAN_MSG" \
             --arg sha "$SHORT_SHA_TRIMMED" \
             '{
+              username: "GitHub Actions",
+              avatar_url: "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png",
               flags: 32768,
               components: [
                 {
