@@ -1,5 +1,5 @@
 # placeholder
-a place where i store some stuff. also this readme exists just so that i can add files :P
+welcome to my shitpost repo where i do basically whatever the fuck i want with it cuz why not
 
 random tags cuz why not:
 <p align="center">
