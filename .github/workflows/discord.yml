@@ -14,12 +14,37 @@ jobs:
           curl -H "Content-Type: application/json" \
                -X POST \
                -d '{
-                 "embeds": [
-                   {
-                     "title": "<:github:1535885661683589161> changes in **${{ github.actor }}**'\''s repositories:",
-                     "description": "## [${{ github.repository }} • ${{ github.ref_name }}] new commit pushed\n\n- [`${{ github.sha }}`] ${{ github.event.head_commit.message }} • **${{ github.actor }}**\n\n-# embed made by [@blasieuwu](https://blasieuwu.neocities.org) / sent via github actions",
-                     "color": 9895830
-                   }
-                 ]
-               }' \
+                    "flags": 32768,
+                    "components": [
+                      {
+                        "type": 17,
+                        "accent_color": 9895830,
+                        "spoiler": false,
+                        "components": [
+                          {
+                            "type": 10,
+                            "content": "<:github:1535885661683589161> changes in **${{github.actor}}**'s repositories:\n## [${{github.repository}} • ${{github.ref_name}}] new commit(s)\n"
+                          },
+                          {
+                            "type": 14,
+                            "divider": true,
+                            "spacing": 1
+                          },
+                          {
+                            "type": 10,
+                            "content": "- [`${{github.sha}}`] ${{github.event.head_commit.message}} • **${{github.actor}}**"
+                          },
+                          {
+                            "type": 14,
+                            "divider": true,
+                            "spacing": 1
+                          },
+                          {
+                            "type": 10,
+                            "content": "-# embed made by [@blasieuwu](https://blasieuwu.neocities.org)"
+                          }
+                        ]
+                      }
+                    ]
+                  }' \
                "${{ secrets.DISCORD_WEBHOOK }}"
