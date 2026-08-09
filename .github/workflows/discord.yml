@@ -1,0 +1,25 @@
+name: discord notify
+
+on:
+  push:
+    branches:
+      - main  # change to master if your default branch is master
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: send discord message
+        run: |
+          curl -H "Content-Type: application/json" \
+               -X POST \
+               -d '{
+                 "embeds": [
+                   {
+                     "title": "<:github:1535885661683589161> changes in **${{ github.actor }}**'\''s repositories:",
+                     "description": "## [${{ github.repository }} • ${{ github.ref_name }}] new commit pushed\n\n- [`${{ github.sha }}`] ${{ github.event.head_commit.message }} • **${{ github.actor }}**\n\n-# embed made by [@blasieuwu](https://blasieuwu.neocities.org) / sent via github actions",
+                     "color": 9895830
+                   }
+                 ]
+               }' \
+               "${{ secrets.DISCORD_WEBHOOK }}"
