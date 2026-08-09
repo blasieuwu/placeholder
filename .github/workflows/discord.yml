@@ -3,48 +3,69 @@ name: discord notify
 on:
   push:
     branches:
-      - main  # change to master if your default branch is master
+      - main
 
 jobs:
   notify:
     runs-on: ubuntu-latest
     steps:
       - name: send discord message
+        env:
+          ACTOR: ${{ github.actor }}
+          REPO: ${{ github.repository }}
+          BRANCH: ${{ github.ref_name }}
+          COMMIT_MSG: ${{ github.event.head_commit.message }}
+          SHORT_SHA: ${{ github.event.head_commit.id }}
+          WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK }}
         run: |
+          # grab short sha (first 7 characters)
+          SHORT_SHA_TRIMMED="${SHORT_SHA:0:7}"
+          
+          # sanitize commit message to single line for json
+          CLEAN_MSG=$(echo "$COMMIT_MSG" | head -n 1)
+
+          # build payload cleanly with jq
+          PAYLOAD=$(jq -n \
+            --arg actor "$ACTOR" \
+            --arg repo "$REPO" \
+            --arg branch "$BRANCH" \
+            --arg msg "$CLEAN_MSG" \
+            --arg sha "$SHORT_SHA_TRIMMED" \
+            '{
+              flags: 32768,
+              components: [
+                {
+                  type: 17,
+                  accent_color: 9895830,
+                  components: [
+                    {
+                      type: 10,
+                      content: "<:github:1535885661683589161> changes in **\($actor)**'\''s repositories:\n## [\($repo) • \($branch)] 1 new commit\n"
+                    },
+                    {
+                      type: 14,
+                      divider: true,
+                      spacing: 1
+                    },
+                    {
+                      type: 10,
+                      content: "- [`\($sha)`] \($msg) • **\($actor)**"
+                    },
+                    {
+                      type: 14,
+                      divider: true,
+                      spacing: 1
+                    },
+                    {
+                      type: 10,
+                      content: "-# embed made by [@blasieuwu](https://blasieuwu.neocities.org)"
+                    }
+                  ]
+                }
+              ]
+            }')
+
           curl -H "Content-Type: application/json" \
                -X POST \
-               -d '{
-                    "flags": 32768,
-                    "components": [
-                      {
-                        "type": 17,
-                        "accent_color": 9895830,
-                        "spoiler": false,
-                        "components": [
-                          {
-                            "type": 10,
-                            "content": "<:github:1535885661683589161> changes in **${{github.actor}}**'s repositories:\n## [${{github.repository}} • ${{github.ref_name}}] new commit(s)\n"
-                          },
-                          {
-                            "type": 14,
-                            "divider": true,
-                            "spacing": 1
-                          },
-                          {
-                            "type": 10,
-                            "content": "- [`${{github.sha}}`] ${{github.event.head_commit.message}} • **${{github.actor}}**"
-                          },
-                          {
-                            "type": 14,
-                            "divider": true,
-                            "spacing": 1
-                          },
-                          {
-                            "type": 10,
-                            "content": "-# embed made by [@blasieuwu](https://blasieuwu.neocities.org)"
-                          }
-                        ]
-                      }
-                    ]
-                  }' \
-               "${{ secrets.DISCORD_WEBHOOK }}"
+               -d "$PAYLOAD" \
+               "$WEBHOOK_URL"
