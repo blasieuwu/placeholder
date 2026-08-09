@@ -65,7 +65,7 @@ jobs:
               ]
             }')
 
-          TARGET_URL="${WEBHOOK_URL}?wait=true"
+          TARGET_URL="${WEBHOOK_URL}"
 
           response=$(curl -s -o /tmp/discord_res.txt -w "%{http_code}" \
             -H "Content-Type: application/json" \
